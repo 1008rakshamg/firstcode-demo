@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - Razorpay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .success-icon::before {
+            content: "✓";
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .razorpay-logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .payment-details {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .payment-details h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+            text-align: left;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: #333;
+            text-align: right;
+        }
+
+        .amount-highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .status-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .info-box h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            color: #424242;
+            margin-bottom: 8px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            padding: 15px;
+            color: #721c24;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .detail-value {
+                text-align: left;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon"></div>
+        
+        <div class="header">
+            <img src="https://razorpay.com/favicon.png" alt="Razorpay" class="razorpay-logo">
+            <h1>Payment Successful!</h1>
+            <p>Your payment has been processed successfully</p>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading payment details...</p>
+        </div>
+
+        <div id="paymentDetails" style="display: none;">
+            <div class="payment-details">
+                <h2>Payment Details</h2>
+                
+                <div class="amount-highlight" id="amountDisplay">
+                    ₹0.00
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Payment ID:</span>
+                    <span class="detail-value" id="paymentId">-</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Order ID:</span>
+                    <span class="detail-value" id="orderId">-</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value">
+                        <span class="status-badge" id="status">SUCCESS</span>
+                    </span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Customer Name:</span>
+                    <span class="detail-value" id="customerName">-</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value" id="customerEmail">-</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value" id="customerPhone">-</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Description:</span>
+                    <span class="detail-value" id="description">-</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Payment Date:</span>
+                    <span class="detail-value" id="paymentDate">-</span>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>📧 What's Next?</h3>
+                <p>• A confirmation email has been sent to your registered email address</p>
+                <p>• You can download your receipt from the payment details above</p>
+                <p>• For any queries, please contact our support team</p>
+            </div>
+
+            <div class="actions">
+                <a href="/" class="btn btn-primary">Make Another Payment</a>
+                <a href="/razorpay-test.html" class="btn btn-outline">Test Another Payment</a>
+                <button class="btn btn-secondary" onclick="downloadReceipt()">Download Receipt</button>
+            </div>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <h3>⚠️ Unable to Load Payment Details</h3>
+            <p id="errorText">Payment details could not be loaded. Please check your payment ID and try again.</p>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentId = urlParams.get('paymentId');
+        const orderId = urlParams.get('orderId');
+        const amount = urlParams.get('amount');
+        const customerName = urlParams.get('customerName');
+        const customerEmail = urlParams.get('customerEmail');
+        const customerPhone = urlParams.get('customerPhone');
+        const description = urlParams.get('description');
+
+        // Show loading initially
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('paymentDetails').style.display = 'none';
+        document.getElementById('errorMessage').style.display = 'none';
+
+        // Function to format amount
+        function formatAmount(amountInPaise) {
+            const amountInRupees = parseFloat(amountInPaise) / 100;
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR'
+            }).format(amountInRupees);
+        }
+
+        // Function to format date
+        function formatDate(dateString) {
+            if (!dateString) return new Date().toLocaleString('en-IN');
+            return new Date(dateString).toLocaleString('en-IN');
+        }
+
+        // Function to populate payment details
+        function populatePaymentDetails(data) {
+            document.getElementById('paymentId').textContent = data.paymentId || paymentId || '-';
+            document.getElementById('orderId').textContent = data.orderId || orderId || '-';
+            document.getElementById('amountDisplay').textContent = formatAmount(data.amount || amount || 0);
+            document.getElementById('status').textContent = data.status || 'SUCCESS';
+            document.getElementById('customerName').textContent = data.customerName || customerName || '-';
+            document.getElementById('customerEmail').textContent = data.customerEmail || customerEmail || '-';
+            document.getElementById('customerPhone').textContent = data.customerPhone || customerPhone || '-';
+            document.getElementById('description').textContent = data.description || description || '-';
+            document.getElementById('paymentDate').textContent = formatDate(data.capturedAt);
+        }
+
+        // Function to show error
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('paymentDetails').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorText').textContent = message;
+        }
+
+        // Function to download receipt
+        function downloadReceipt() {
+            const receiptData = {
+                paymentId: document.getElementById('paymentId').textContent,
+                orderId: document.getElementById('orderId').textContent,
+                amount: document.getElementById('amountDisplay').textContent,
+                customerName: document.getElementById('customerName').textContent,
+                customerEmail: document.getElementById('customerEmail').textContent,
+                paymentDate: document.getElementById('paymentDate').textContent,
+                status: document.getElementById('status').textContent
+            };
+
+            const receiptText = `
+Payment Receipt
+===============
+
+Payment ID: ${receiptData.paymentId}
+Order ID: ${receiptData.orderId}
+Amount: ${receiptData.amount}
+Customer: ${receiptData.customerName}
+Email: ${receiptData.customerEmail}
+Date: ${receiptData.paymentDate}
+Status: ${receiptData.status}
+
+Thank you for your payment!
+            `;
+
+            const blob = new Blob([receiptText], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `receipt_${receiptData.paymentId}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Load payment details
+        async function loadPaymentDetails() {
+            try {
+                // If we have a payment ID, try to fetch details from backend
+                if (paymentId) {
+                    const response = await fetch(`/api/payments/razorpay/payment/${paymentId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        populatePaymentDetails(data);
+                    } else {
+                        // Fallback to URL parameters
+                        populatePaymentDetails({});
+                    }
+                } else {
+                    // Use URL parameters only
+                    populatePaymentDetails({});
+                }
+
+                // Hide loading and show details
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('paymentDetails').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading payment details:', error);
+                showError('Failed to load payment details. Please check your internet connection.');
+            }
+        }
+
+        // Auto-load payment details when page loads
+        window.addEventListener('load', loadPaymentDetails);
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click effect to buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+
+            // Add hover effect to payment details
+            const paymentDetails = document.querySelector('.payment-details');
+            if (paymentDetails) {
+                paymentDetails.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 25px 50px rgba(0,0,0,0.15)';
+                });
+                
+                paymentDetails.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 20px 40px rgba(0,0,0,0.1)';
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

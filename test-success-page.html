@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Success Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-link {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 25px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .test-link:hover {
+            background: #5a6fd8;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Test Success Page</h1>
+        <p>Click the links below to test the payment success page with different scenarios:</p>
+        
+        <div class="info">
+            <h3>Test Scenarios:</h3>
+            <ul>
+                <li><strong>Complete Payment Data:</strong> All payment details including backend data</li>
+                <li><strong>URL Parameters Only:</strong> Only data passed via URL parameters</li>
+                <li><strong>Minimal Data:</strong> Just payment ID and amount</li>
+                <li><strong>No Data:</strong> Empty success page to test error handling</li>
+            </ul>
+        </div>
+
+        <h3>Test Links:</h3>
+        
+        <a href="/payment-success.html?paymentId=pay_ABC123XYZ&orderId=order_DEF456UVW&amount=10000&customerName=John%20Doe&customerEmail=john.doe%40example.com&customerPhone=%2B91-9876543210&description=Test%20payment%20for%20demo" class="test-link">
+            ✅ Complete Payment Data
+        </a>
+        
+        <a href="/payment-success.html?paymentId=pay_TEST123&orderId=order_TEST456&amount=5000&customerName=Jane%20Smith&customerEmail=jane.smith%40example.com&customerPhone=%2B91-8765432109&description=Sample%20payment" class="test-link">
+            📋 URL Parameters Only
+        </a>
+        
+        <a href="/payment-success.html?paymentId=pay_MINIMAL&amount=2500" class="test-link">
+            🔢 Minimal Data
+        </a>
+        
+        <a href="/payment-success.html" class="test-link">
+            ❌ No Data (Error Test)
+        </a>
+
+        <div class="info">
+            <h3>How to Test:</h3>
+            <ol>
+                <li>Click any test link above</li>
+                <li>Observe how the success page handles different data scenarios</li>
+                <li>Test the "Download Receipt" functionality</li>
+                <li>Try the navigation buttons</li>
+                <li>Test responsive design on mobile devices</li>
+            </ol>
+        </div>
+
+        <h3>Expected Behavior:</h3>
+        <ul>
+            <li><strong>Complete Data:</strong> Shows all payment details with backend integration</li>
+            <li><strong>URL Parameters:</strong> Shows data from URL parameters only</li>
+            <li><strong>Minimal Data:</strong> Shows available data, shows "-" for missing fields</li>
+            <li><strong>No Data:</strong> Shows error message or fallback to current date/time</li>
+        </ul>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="/" class="test-link">🏠 Back to Main Page</a>
+            <a href="/razorpay-test.html" class="test-link">🧪 Back to Test Page</a>
+        </div>
+    </div>
+</body>
+</html> 

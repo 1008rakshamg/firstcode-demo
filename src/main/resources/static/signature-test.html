@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razorpay Signature Verification Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .result.info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .info-box h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #424242;
+        }
+
+        .info-box li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Razorpay Signature Verification Test</h1>
+            <p>Test and verify Razorpay payment signatures</p>
+        </div>
+
+        <div class="info-box">
+            <h4>📋 About Signature Verification</h4>
+            <ul>
+                <li><strong>Purpose:</strong> Verify that payment responses are authentic and not tampered with</li>
+                <li><strong>Algorithm:</strong> HMAC SHA256</li>
+                <li><strong>Data Format:</strong> paymentId|orderId</li>
+                <li><strong>Security:</strong> Prevents replay attacks and data tampering</li>
+            </ul>
+        </div>
+
+        <div class="grid">
+            <!-- Generate Signature Section -->
+            <div class="test-section">
+                <h3>🔑 Generate Signature</h3>
+                <form id="generateForm">
+                    <div class="form-group">
+                        <label for="genPaymentId">Payment ID:</label>
+                        <input type="text" id="genPaymentId" name="paymentId" placeholder="pay_ABC123XYZ" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="genOrderId">Order ID:</label>
+                        <input type="text" id="genOrderId" name="orderId" placeholder="order_DEF456UVW" required>
+                    </div>
+                    <button type="submit" class="btn">Generate Signature</button>
+                </form>
+                <div class="loading" id="generateLoading">
+                    <div class="spinner"></div>
+                    <p>Generating signature...</p>
+                </div>
+                <div class="result" id="generateResult"></div>
+            </div>
+
+            <!-- Verify Signature Section -->
+            <div class="test-section">
+                <h3>✅ Verify Signature</h3>
+                <form id="verifyForm">
+                    <div class="form-group">
+                        <label for="verifyPaymentId">Payment ID:</label>
+                        <input type="text" id="verifyPaymentId" name="paymentId" placeholder="pay_ABC123XYZ" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="verifyOrderId">Order ID:</label>
+                        <input type="text" id="verifyOrderId" name="orderId" placeholder="order_DEF456UVW" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="verifySignature">Signature:</label>
+                        <input type="text" id="verifySignature" name="signature" placeholder="abc123def456..." required>
+                    </div>
+                    <button type="submit" class="btn">Verify Signature</button>
+                </form>
+                <div class="loading" id="verifyLoading">
+                    <div class="spinner"></div>
+                    <p>Verifying signature...</p>
+                </div>
+                <div class="result" id="verifyResult"></div>
+            </div>
+        </div>
+
+        <!-- Webhook Signature Section -->
+        <div class="test-section">
+            <h3>🌐 Webhook Signature Verification</h3>
+            <form id="webhookForm">
+                <div class="form-group">
+                    <label for="webhookPayload">Webhook Payload (JSON):</label>
+                    <textarea id="webhookPayload" name="payload" rows="4" placeholder='{"event":"payment.captured","payload":{"payment":{"entity":{"id":"pay_test123","amount":1000}}}}' required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="webhookSignature">Webhook Signature:</label>
+                    <input type="text" id="webhookSignature" name="signature" placeholder="abc123def456..." required>
+                </div>
+                <button type="submit" class="btn">Verify Webhook Signature</button>
+            </form>
+            <div class="loading" id="webhookLoading">
+                <div class="spinner"></div>
+                <p>Verifying webhook signature...</p>
+            </div>
+            <div class="result" id="webhookResult"></div>
+        </div>
+
+        <!-- Health Check Section -->
+        <div class="test-section">
+            <h3>🏥 System Health Check</h3>
+            <button type="button" class="btn" onclick="checkHealth()">Check Signature Verifier Health</button>
+            <div class="loading" id="healthLoading">
+                <div class="spinner"></div>
+                <p>Checking health...</p>
+            </div>
+            <div class="result" id="healthResult"></div>
+        </div>
+
+        <!-- Quick Test Section -->
+        <div class="test-section">
+            <h3>⚡ Quick Tests</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="button" class="btn" onclick="runQuickTest('valid')">Test Valid Signature</button>
+                <button type="button" class="btn" onclick="runQuickTest('invalid')">Test Invalid Signature</button>
+                <button type="button" class="btn" onclick="runQuickTest('missing')">Test Missing Parameters</button>
+            </div>
+            <div class="result" id="quickTestResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/test';
+
+        // Generate Signature
+        document.getElementById('generateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loading = document.getElementById('generateLoading');
+            const result = document.getElementById('generateResult');
+            
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            const formData = new FormData(e.target);
+            const data = {
+                paymentId: formData.get('paymentId'),
+                orderId: formData.get('orderId')
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/generate-signature`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const resultData = await response.json();
+                
+                if (response.ok) {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        <h4>✅ Signature Generated Successfully</h4>
+                        <p><strong>Payment ID:</strong> ${resultData.paymentId}</p>
+                        <p><strong>Order ID:</strong> ${resultData.orderId}</p>
+                        <p><strong>Data String:</strong> ${resultData.dataString}</p>
+                        <p><strong>Signature:</strong> <code>${resultData.signature}</code></p>
+                        <p><strong>Timestamp:</strong> ${resultData.timestamp}</p>
+                    `;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `<h4>❌ Error</h4><p>${resultData.error || 'Failed to generate signature'}</p>`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<h4>❌ Network Error</h4><p>${error.message}</p>`;
+            }
+            
+            loading.style.display = 'none';
+            result.style.display = 'block';
+        });
+
+        // Verify Signature
+        document.getElementById('verifyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loading = document.getElementById('verifyLoading');
+            const result = document.getElementById('verifyResult');
+            
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            const formData = new FormData(e.target);
+            const data = {
+                paymentId: formData.get('paymentId'),
+                orderId: formData.get('orderId'),
+                signature: formData.get('signature')
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/verify-signature`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const resultData = await response.json();
+                
+                if (response.ok) {
+                    if (resultData.valid) {
+                        result.className = 'result success';
+                        result.innerHTML = `
+                            <h4>✅ Signature Verified Successfully</h4>
+                            <p><strong>Payment ID:</strong> ${resultData.paymentId}</p>
+                            <p><strong>Order ID:</strong> ${resultData.orderId}</p>
+                            <p><strong>Provided Signature:</strong> <code>${resultData.providedSignature}</code></p>
+                            <p><strong>Expected Signature:</strong> <code>${resultData.expectedSignature}</code></p>
+                            <p><strong>Data String:</strong> ${resultData.dataString}</p>
+                        `;
+                    } else {
+                        result.className = 'result error';
+                        result.innerHTML = `
+                            <h4>❌ Signature Verification Failed</h4>
+                            <p><strong>Payment ID:</strong> ${resultData.paymentId}</p>
+                            <p><strong>Order ID:</strong> ${resultData.orderId}</p>
+                            <p><strong>Provided Signature:</strong> <code>${resultData.providedSignature}</code></p>
+                            <p><strong>Expected Signature:</strong> <code>${resultData.expectedSignature}</code></p>
+                            <p><strong>Data String:</strong> ${resultData.dataString}</p>
+                        `;
+                    }
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `<h4>❌ Error</h4><p>${resultData.error || 'Failed to verify signature'}</p>`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<h4>❌ Network Error</h4><p>${error.message}</p>`;
+            }
+            
+            loading.style.display = 'none';
+            result.style.display = 'block';
+        });
+
+        // Webhook Signature Verification
+        document.getElementById('webhookForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loading = document.getElementById('webhookLoading');
+            const result = document.getElementById('webhookResult');
+            
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            const formData = new FormData(e.target);
+            const data = {
+                payload: formData.get('payload'),
+                signature: formData.get('signature')
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/verify-webhook-signature`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const resultData = await response.json();
+                
+                if (response.ok) {
+                    if (resultData.valid) {
+                        result.className = 'result success';
+                        result.innerHTML = `
+                            <h4>✅ Webhook Signature Verified Successfully</h4>
+                            <p><strong>Payload:</strong> <code>${resultData.payload}</code></p>
+                            <p><strong>Provided Signature:</strong> <code>${resultData.providedSignature}</code></p>
+                            <p><strong>Expected Signature:</strong> <code>${resultData.expectedSignature}</code></p>
+                        `;
+                    } else {
+                        result.className = 'result error';
+                        result.innerHTML = `
+                            <h4>❌ Webhook Signature Verification Failed</h4>
+                            <p><strong>Payload:</strong> <code>${resultData.payload}</code></p>
+                            <p><strong>Provided Signature:</strong> <code>${resultData.providedSignature}</code></p>
+                            <p><strong>Expected Signature:</strong> <code>${resultData.expectedSignature}</code></p>
+                        `;
+                    }
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `<h4>❌ Error</h4><p>${resultData.error || 'Failed to verify webhook signature'}</p>`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<h4>❌ Network Error</h4><p>${error.message}</p>`;
+            }
+            
+            loading.style.display = 'none';
+            result.style.display = 'block';
+        });
+
+        // Health Check
+        async function checkHealth() {
+            const loading = document.getElementById('healthLoading');
+            const result = document.getElementById('healthResult');
+            
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE}/signature-verifier-health`);
+                const resultData = await response.json();
+                
+                if (response.ok && resultData.status === 'UP') {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        <h4>✅ Signature Verifier is Healthy</h4>
+                        <p><strong>Status:</strong> ${resultData.status}</p>
+                        <p><strong>Component:</strong> ${resultData.component}</p>
+                        <p><strong>Test Payment ID:</strong> ${resultData.testPaymentId}</p>
+                        <p><strong>Test Order ID:</strong> ${resultData.testOrderId}</p>
+                        <p><strong>Test Signature:</strong> <code>${resultData.testSignature}</code></p>
+                        <p><strong>Verification Result:</strong> ${resultData.verificationResult}</p>
+                        <p><strong>Timestamp:</strong> ${resultData.timestamp}</p>
+                    `;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `
+                        <h4>❌ Signature Verifier is Unhealthy</h4>
+                        <p><strong>Status:</strong> ${resultData.status}</p>
+                        <p><strong>Error:</strong> ${resultData.error || 'Unknown error'}</p>
+                        <p><strong>Timestamp:</strong> ${resultData.timestamp}</p>
+                    `;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<h4>❌ Network Error</h4><p>${error.message}</p>`;
+            }
+            
+            loading.style.display = 'none';
+            result.style.display = 'block';
+        }
+
+        // Quick Tests
+        async function runQuickTest(type) {
+            const result = document.getElementById('quickTestResult');
+            
+            let data;
+            let description;
+            
+            switch (type) {
+                case 'valid':
+                    data = {
+                        paymentId: 'pay_test123',
+                        orderId: 'order_test456',
+                        signature: 'valid_signature_placeholder'
+                    };
+                    description = 'Valid Signature Test';
+                    break;
+                case 'invalid':
+                    data = {
+                        paymentId: 'pay_test123',
+                        orderId: 'order_test456',
+                        signature: 'invalid_signature_12345'
+                    };
+                    description = 'Invalid Signature Test';
+                    break;
+                case 'missing':
+                    data = {
+                        paymentId: 'pay_test123'
+                    };
+                    description = 'Missing Parameters Test';
+                    break;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/verify-signature`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const resultData = await response.json();
+                
+                if (response.ok) {
+                    if (resultData.valid) {
+                        result.className = 'result success';
+                        result.innerHTML = `<h4>✅ ${description} - Success</h4><p>Signature verification passed</p>`;
+                    } else {
+                        result.className = 'result error';
+                        result.innerHTML = `<h4>❌ ${description} - Failed</h4><p>Signature verification failed as expected</p>`;
+                    }
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `<h4>❌ ${description} - Error</h4><p>${resultData.error || 'Request failed'}</p>`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<h4>❌ ${description} - Network Error</h4><p>${error.message}</p>`;
+            }
+            
+            result.style.display = 'block';
+        }
+
+        // Auto-fill demo data
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('genPaymentId').value = 'pay_ABC123XYZ';
+            document.getElementById('genOrderId').value = 'order_DEF456UVW';
+            document.getElementById('webhookPayload').value = '{"event":"payment.captured","payload":{"payment":{"entity":{"id":"pay_test123","amount":1000,"currency":"INR"}}}}';
+        });
+    </script>
+</body>
+</html> 
