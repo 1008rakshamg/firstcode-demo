@@ -26,6 +26,9 @@ import com.payment.dto.RazorpayPaymentVerificationRequest;
 import com.payment.entity.Payment;
 import com.payment.service.PaymentService;
 import com.razorpay.RazorpayClient;
+import com.razorpay.RazorpayException;
+import com.razorpay.Order;
+import org.json.JSONObject;
 
 import jakarta.validation.Valid;
 
@@ -88,7 +91,6 @@ public class PaymentController {
         } catch (RazorpayException e) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "Failed to create Razorpay order: " + e.getMessage());
-            errorResponse.put("errorCode", e.getCode());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         } catch (Exception e) {
             Map<String, Object> errorResponse = new HashMap<>();
